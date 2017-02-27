@@ -1,0 +1,49 @@
+apply plugin: 'java'
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/java'
+		}
+	}
+}
+
+def pzFolderPath = 'K:/SteamLibrary/steamapps/common/ProjectZomboid'
+def mainClass = 'redlaboratory.pzkoreanchatpatch.Main'
+
+version = '36.4'
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories {
+	flatDir {
+		dirs pzFolderPath
+	}
+}
+
+dependencies {
+	compile ':lwjgl'
+	compile ':lwjgl_test'
+	compile ':lwjgl_util'
+	compile ':lwjgl_util_applet'
+	compile ':lwjgl-debug'
+	compile ':sqlite-jdbc:3.8.10.1'
+	compile ':uncommons-maths:1.2.3'
+	compile files(pzFolderPath)
+}
+
+jar {
+	manifest {
+		attributes 'Main-class': mainClass, 'Version': version
+	}
+	
+	from sourceSets.main.output
+	from 'README.md'
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '3.2.1'
+}
