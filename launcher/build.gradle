@@ -1,0 +1,53 @@
+println 'launcher'
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/java'
+			srcDir project(':patch').sourceSets.main.output
+		}
+	}
+	test {
+		java {
+			srcDir 'src/test/java'
+		}
+		resources {
+			srcDir 'src/test/java'
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://jitpack.io"
+	}
+}
+
+dependencies {
+	testCompile 'junit:junit:4.12'
+
+	compile 'com.github.sarxos:win-registry:windows-registry-util-0.3'	
+	compile 'com.github.nosoop:vdf-json-java:master-SNAPSHOT'
+}
+
+jar {
+	manifest {
+		attributes 'Main-class': mainClass, 'Version': version
+	}
+
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	from sourceSets.main.output
+}
+
+task launch(type: JavaExec) {
+	println sourceSets.main.runtimeClasspath.files
+
+	main = 'redlaboratory.pzkoreanchatpatch.Launcher'
+	classpath = files(sourceSets.main.runtimeClasspath)
+
+	jvmArgs '-Dzomboid.steam=0', '-Dzomboid.znetlog=0', '-Xms768m', '-Xmx768m', '-XX:-CreateMinidumpOnCrash', '-XX:-OmitStackTraceInFastThrow', '-Djava.library.path=./'
+}

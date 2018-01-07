@@ -1,49 +1,30 @@
-apply plugin: 'java'
-
-sourceSets {
-	main {
-		java {
-			srcDir 'src/main/java'
-		}
-		resources {
-			srcDir 'src/main/java'
-		}
-	}
+if (!hasProperty('mainClass')) {
+	println 'mainClass property doesn\'t exist'
+}
+if (!hasProperty('pzFolderPath')) {
+	println 'pzFolderPath property doesn\'t exist'
 }
 
-def pzFolderPath = 'K:/SteamLibrary/steamapps/common/ProjectZomboid'
-def mainClass = 'redlaboratory.pzkoreanchatpatch.Main'
+subprojects {
+	apply plugin: 'java'
 
-version = '36.4'
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
+	version = '38.30'
 
-repositories {
-	flatDir {
-		dirs pzFolderPath
-	}
+	sourceCompatibility = '1.7'
+	targetCompatibility = '1.7'
+
+	test.testLogging.showStandardStreams = true
 }
 
-dependencies {
-	compile ':lwjgl'
-	compile ':lwjgl_test'
-	compile ':lwjgl_util'
-	compile ':lwjgl_util_applet'
-	compile ':lwjgl-debug'
-	compile ':sqlite-jdbc:3.8.10.1'
-	compile ':uncommons-maths:1.2.3'
-	compile files(pzFolderPath)
+project(':installer') {
 }
 
-jar {
-	manifest {
-		attributes 'Main-class': mainClass, 'Version': version
-	}
-	
-	from sourceSets.main.output
-	from 'README.md'
+project(':launcher') {
+}
+
+project(':patch') {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '3.2.1'
+	gradleVersion = '4.4.1'
 }

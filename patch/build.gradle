@@ -1,0 +1,40 @@
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/java'
+		}
+	}
+	test {
+		java {
+			srcDir 'src/test/java'
+		}
+	}
+}
+
+println "PZFolderPath: " + pzFolderPath
+
+dependencies {
+/*
+	'lwjgl'
+	'lwjgl_test'
+	'lwjgl_util'
+	'lwjgl_util_applet'
+	'lwjgl-debug'
+	'sqlite-jdbc-3.8.10.1'
+	'uncommons-maths-1.2.3'
+*/
+	compile fileTree(dir: pzFolderPath, include: ['*.jar'])
+	compile files(pzFolderPath)
+}
+
+task launchPZ(type: JavaExec) {
+	workingDir = pzFolderPath
+
+	main = 'zombie.gameStates.MainScreenState'
+	classpath = sourceSets.main.runtimeClasspath
+
+	jvmArgs '-Dzomboid.steam=0', '-Dzomboid.znetlog=0', '-Xms768m', '-Xmx768m', '-XX:-CreateMinidumpOnCrash', '-XX:-OmitStackTraceInFastThrow'
+}

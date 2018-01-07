@@ -1,0 +1,49 @@
+println 'installer'
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/java'
+		}
+	}
+	test {
+		java {
+			srcDir 'src/test/java'
+		}
+		resources {
+			srcDir 'src/test/java'
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://jitpack.io"
+	}
+}
+
+configurations {
+	res
+}
+
+dependencies {
+	testCompile 'junit:junit:4.12'
+
+	compile 'com.github.sarxos:win-registry:windows-registry-util-0.3'	
+	compile 'com.github.nosoop:vdf-json-java:master-SNAPSHOT'
+
+	res project(':patch').sourceSets.main.output
+}
+
+jar {
+	manifest {
+		attributes 'Main-class': mainClass, 'Version': version
+	}
+
+	from configurations.res.collect { it.exists() ? (it.isDirectory() ? it : zipTree(it)) : it }
+	from sourceSets.main.output
+}
