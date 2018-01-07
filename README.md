@@ -1,6 +1,6 @@
-#Info
+# Info
 Java version: 7
 
-#Contact
+# Contact
 e-mail: rlj1202@gmail.com
 blog: http://redlaboratory.tistory.com/
