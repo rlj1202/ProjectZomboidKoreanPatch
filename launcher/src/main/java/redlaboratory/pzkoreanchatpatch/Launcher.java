@@ -25,15 +25,44 @@ public class Launcher {
 			"zombie/core/Core$1.class"
 	};
 
-	public static void main(String[] args) {
-		try {
-			/*
-			File logFile = new File("log.txt");
-			FileOutputStream logStream = new FileOutputStream(logFile);
-			PrintStream printStream = new PrintStream(logStream);
+	private static final String[] jvmArgs = {
+			"-Xms768m", "-Xmx768m",
+			"-XX:-CreateMinidumpOnCrash", "-XX:-OmitStackTraceInFastThrow",
+			"-Djava.library.path=./"
+	};
 
-			System.setOut(printStream);
-			System.setErr(printStream);*/
+	private static boolean flagSteam = false;
+	private static boolean flagLogging = false;
+
+	private static PrintStream defaultOut;
+	private static PrintStream defaultErr;
+
+	public static void main(String[] args) {
+		for (String arg : args) {
+		    if (arg.startsWith("--")) {
+		    	switch (arg.substring(2)) {
+		    		case "steam":
+		    			flagSteam = true;
+		    			break;
+					case "logging":
+						flagLogging = true;
+						break;
+				}
+			}
+		}
+
+		try {
+			if (flagLogging) {
+				File logFile = new File("log.txt");
+				FileOutputStream logStream = new FileOutputStream(logFile);
+				PrintStream printStream = new PrintStream(logStream);
+
+				defaultOut = System.out;
+				defaultErr = System.err;
+
+				System.setOut(printStream);
+				System.setErr(printStream);
+			}
 
 			File pzFolder = getPZFolder();
 			if (pzFolder == null) {
@@ -50,31 +79,34 @@ public class Launcher {
 				System.out.println("Create tmp file: " + i);
 			}
 
-//			execute(pzFolder, tmpClasspathDir);
+			if (flagLogging) {
+				System.setOut(defaultOut);
+				System.setErr(defaultErr);
+			}
+
+			execute(pzFolder, tmpClasspathDir);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 	}
 
 	private static void execute(File pzFolder, File tmpClasspathDir) throws Exception {
-		String command = "java";
-
-		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-		List<String> jvmArgs = bean.getInputArguments();
-
-		for (String jvmArg : jvmArgs) {
-			command += " " + jvmArg;
+		StringBuilder command = new StringBuilder();
+		command.append("java");
+		if (flagSteam) {
+			command.append(" -Dzomboid.steam=1 -Dzomboid.znetlog=1");
 		}
-
-		command += " -cp ";
-		command += tmpClasspathDir.getAbsolutePath();
-		command += ";jinput.jar;lwjgl.jar;lwjgl_util.jar;sqlite-jdbc-3.8.10.1.jar;uncommons-maths-1.2.3.jar;trove-3.0.3.jar;./";
-
-		command += " zombie.gameStates.MainScreenState";
-
+		for (String jvmArg : jvmArgs) {
+			command.append(' ');
+		    command.append(jvmArg);
+		}
+		command.append(" -cp ");
+		command.append(tmpClasspathDir.getAbsolutePath());
+		command.append(";jinput.jar;lwjgl.jar;lwjgl_util.jar;sqlite-jdbc-3.8.10.1.jar;uncommons-maths-1.2.3.jar;trove-3.0.3.jar;./");
+		command.append(" zombie.gameStates.MainScreenState");
 		System.out.println("Command: " + command);
 
-		Process pro = Runtime.getRuntime().exec(command, null, pzFolder);
+		Process pro = Runtime.getRuntime().exec(command.toString(), null, pzFolder);
 
 		InputStreamReader inputReader = new InputStreamReader(pro.getInputStream());
 		BufferedReader bufInputReader = new BufferedReader(inputReader);
